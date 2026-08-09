@@ -32,6 +32,35 @@ class Contact:
             f"\n--'{self.nom.upper()} {self.prenom}' a été supprimé de la liste des contacts --"
         )
         liste.remove(self)
+    
+    def modifier_prenom(self):
+        new_prenom = input("Prénom : ").capitalize()
+        if verif_prenom_nom(new_prenom) == "erreur":
+            return "erreur"
+        self.prenom = new_prenom
+        print("-- Modification effectuée --")
+
+    def modifier_nom(self):
+        new_nom = input("Nom : ").capitalize()
+        if verif_prenom_nom(new_nom) == "erreur":
+            return "erreur"
+        self.nom = new_nom
+        print("-- Modification effectuée --")
+
+    def modifier_numero(self):
+        new_numero = input("Numéro : ")
+        if verif_numero(new_numero) == "erreur":
+            return "erreur"
+        self.numero = numero_formate(new_numero)
+        print("-- Modification effectuée --")
+
+    def modifier_email(self):
+        new_email = input("E-mail : ")
+        if verif_email(new_email) == "erreur":
+            return "erreur"
+        self.email = new_email
+        print("-- Modification effectuée --")
+
 
 
 def generate_id(liste_id: list):
@@ -55,29 +84,35 @@ def menu():
 
     1 - Ajouter un contact
     2 - Supprimer un contact
-    3 - Rechercher un contact
-    4 - Afficher tous les contacts
-    5 - Quitter
+    3 - Modifier un contact
+    4 - Rechercher un contact
+    5 - Afficher tous les contacts
+    6 - Supprimer tous les contacts
+    7 - Quitter
 """)
 
 
 def navigation(liste: list, liste_id: list):
     num = input("|  Veuiller rentrer un chiffre ->  ")
-    if num in ["1", "2", "3", "4", "5"]:
+    if num in ["1", "2", "3", "4", "5", "6", "7"]:
         if num == "1":
             ajouter_contact(liste, liste_id)
         elif num == "2":
             supprimer_contact(liste, liste_id)
         elif num == "3":
-            rechercher_contact(liste)
+            modifier_contact(liste)
         elif num == "4":
-            afficher_contacts(liste)
+            rechercher_contact(liste)
         elif num == "5":
+            afficher_contacts(liste)
+        elif num == "6":
+            supprimer_tout(liste, liste_id)
+        elif num == "7":
             return "quit"
     elif num == "":
         return
     else:
-        print("\n-- ERREUR : Entrée invalide. Valides : '1', '2', '3', '4' --")
+        print("\n-- ERREUR : Entrée invalide. Valides : '1', '2', '3', '4', '5', '6', '7' --")
 
 
 def choisir_contact(liste: list):
@@ -90,7 +125,7 @@ def choisir_contact(liste: list):
     except ValueError:
         print("\n-- ERREUR : Veuillez rentrez un numéro valide --")
         return "erreur"
-    if 1 <= choix <= i:
+    if 1 <= choix <= len(liste):
         return liste[choix - 1]
     else:
         print("\n-- ERREUR : Veuillez rentrez un numéro valide --")
@@ -98,32 +133,43 @@ def choisir_contact(liste: list):
 
 
 def verif_infos(prenom: str, nom: str, numero: str, email: str):
-    numbers = "0123456789"
     if prenom != "" and nom != "" and numero != "" and email != "":
-        for lettre in prenom + nom:
-            if lettre in numbers:
-                print(
-                    "\n-- ERREUR : Entrée contenant un chiffre dans le prénom ou le nom --"
-                )
-                return "erreur"
-        if not (prenom + nom).isalpha():
-            print(
-                "\n-- ERREUR le nom et le prénom doivent comporter uniquement des lettres"
-            )
+        if verif_prenom_nom(prenom+nom) == "erreur":
             return "erreur"
-        if not numero.isdigit():
-            print("\n-- ERREUR : Le numéro doit comporter uniquement des chiffres --")
+        if verif_numero(numero) == "erreur":
             return "erreur"
-        if len(numero) != 10:
-            print("\n-- ERREUR : Le numéro doit comporter dix chiffres --")
-            return "erreur"
-        if "@" not in email or ".com" not in email:
-            print("\n-- ERREUR : Adresse e-mail invalide --")
+        if verif_email(email) == "erreur":
             return "erreur"
     else:
         print("\n-- ERREUR : Entrée vide --")
         return "erreur"
 
+def verif_prenom_nom(prenom_nom: str):
+    numbers = "0123456789"
+    for lettre in prenom_nom:
+        if lettre in numbers:
+            print(
+                "\n-- ERREUR : Entrée contenant un chiffre dans le prénom ou le nom --"
+            )
+            return "erreur"
+    if not prenom_nom.isalpha():
+        print(
+            "\n-- ERREUR le nom et le prénom doivent comporter uniquement des lettres"
+        )
+        return "erreur"
+
+def verif_numero(numero: str):
+    if not numero.isdigit():
+        print("\n-- ERREUR : Le numéro doit comporter uniquement des chiffres --")
+        return "erreur"
+    if len(numero) != 10:
+        print("\n-- ERREUR : Le numéro doit comporter dix chiffres --")
+        return "erreur"
+
+def verif_email(email: str):
+    if "@" not in email or ".com" not in email:
+        print("\n-- ERREUR : Adresse e-mail invalide --")
+        return "erreur"
 
 def ajouter_contact(liste: list, liste_id: list):
     print("\n--- AJOUT CONTACT ---")
@@ -171,7 +217,7 @@ def rechercher_contact(liste: list):
         print("\n-- Aucun contact dans la liste de contacts --")
         return
     print("""\n
-    --- RECHERCHE ---
+    --- RECHERCHE DE CONTACT ---
 
 -> Types de recherche :
   1 - Par PRÉNOM ou NOM
@@ -232,6 +278,8 @@ def navigation_recherche(liste: list):
 
 
 def rechercher_nom_prenom(liste: list, recherche: str):
+    if recherche == "":
+        return []
     liste_resultats = []
     for contact in liste:
         initiale_prenom = (contact.prenom[0]).lower()
@@ -255,6 +303,8 @@ def rechercher_numero(liste: list, recherche: str):
     return liste_resultats
 
 def rechercher_email(liste: list, recherche: str):
+    if recherche == "":
+        return []
     liste_resultats = []
     for contact in liste:
         initiale_match = recherche[0] == (contact.email[0]).lower()
@@ -269,6 +319,63 @@ def rechercher_id(liste: list, recherche: str):
             liste_resultats.append(contact)
     return liste_resultats 
 
+
+def supprimer_tout(liste: list, liste_id: list):
+    if liste == []:
+        print("\n-- Aucun contact dans la liste de contacts --")
+        return
+    valide = False
+    while not valide :
+        print("--- Êtes-vous sûr de vouloir supprimer tous les contact (o/n) ? ---")
+        validation = input("   -> ")
+        validation = validation.strip().lower()
+        if validation == "o":
+            print(f"-- Supression de {len(liste)} contact(s) effectuée --")
+            liste.clear()
+            liste_id.clear()
+            valide = True
+
+        elif validation == "n":
+            print("-- Retour au menu --")
+            valide = True
+
+        else:
+            print("-- ERREUR : Entrée invalide --")
+
+def modifier_contact(liste: list):
+    if liste == []:
+        print("\n-- Aucun contact dans la liste de contacts --")
+        return
+    print("\n--- MODIFICATION DE CONTACT---")
+    
+    contact = choisir_contact(liste)
+    if contact == "erreur":
+        return
+    contact.afficher()
+    if navigation_modif(contact) == "quit":
+        return
+    
+
+def navigation_modif(contact: Contact):
+    print(f"\n--- Modification de '{contact.full_name()}' ---")
+    print("""
+    1 - Modifier le PRÉNOM
+    2 - Modifier le NOM
+    3 - Modifier le NUMÉRO
+    4 - Modifier l'E-MAIL
+    5 - Retour au menu
+""")
+    choix = input("   -> ")
+    if choix == "1":
+        contact.modifier_prenom()
+    elif choix == "2":
+        contact.modifier_nom()
+    elif choix == "3":
+        contact.modifier_numero()
+    elif choix == "4":
+        contact.modifier_email()
+    elif choix == "5":
+        return "quit"
 
 def main():
     liste_id = []
