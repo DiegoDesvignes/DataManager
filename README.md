@@ -4,7 +4,7 @@ Un gestionnaire de contacts simple et efficace écrit en **Python** !
 
 ## 🎯 Qu'est-ce que c'est ?
 
-DataManager est une application qui permet de :
+DataManager est une application dans le terminal qui permet de :
 - ✅ Créer et gérer vos contacts facilement
 - ✅ Ajouter, modifier, supprimer des contacts
 - ✅ Rechercher rapidement un contact
